@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Interactive Lesson Mockup</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial;
+  display: flex;
+  height: 100vh;
+  background: #f5f6fa;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background: #2d3b45;
+  color: white;
+  padding: 20px;
+}
+
+.sidebar h2 {
+  margin-top: 0;
+}
+
+.sidebar a {
+  display: block;
+  color: white;
+  text-decoration: none;
+  margin: 15px 0;
+  cursor: pointer;
+}
+
+/* Main Layout */
+.main {
+  flex: 1;
+  display: flex;
+}
+
+.video-section {
+  flex: 3;
+  position: relative;
+  background: black;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+}
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: crosshair;
+}
+
+/* Right Panel */
+.panel {
+  flex: 1;
+  background: white;
+  padding: 15px;
+  border-left: 1px solid #ddd;
+  overflow-y: auto;
+}
+
+#comments {
+  height: 200px;
+  border: 1px solid #ccc;
+  overflow-y: scroll;
+  margin-bottom: 10px;
+  padding: 5px;
+}
+
+button {
+  margin-top: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+/* Popup */
+.popup {
+  position: fixed;
+  top: 30%;
+  left: 35%;
+  width: 300px;
+  background: white;
+  border: 2px solid #2d3b45;
+  padding: 20px;
+  display: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+  <h2>Course</h2>
+  <a>Home</a>
+  <a>Modules</a>
+  <a>Assignments</a>
+  <a>Grades</a>
+</div>
+
+<div class="main">
+
+  <div class="video-section">
+    <video id="lessonVideo" controls>
+      <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+    </video>
+    <canvas id="whiteboard"></canvas>
+  </div>
+
+  <div class="panel">
+
+    <h3>Live Comments</h3>
+    <div id="comments"></div>
+    <input id="commentInput" placeholder="Add comment..." />
+    <button onclick="addComment()">Send</button>
+
+    <hr>
+
+    <h3>Poll</h3>
+    <p>Do you understand this topic?</p>
+    <button onclick="vote('Yes')">Yes</button>
+    <button onclick="vote('No')">No</button>
+    <p id="pollResults"></p>
+
+    <hr>
+
+    <h3>Knowledge Check</h3>
+    <button onclick="showQuiz()">Launch Quiz</button>
+
+    <hr>
+
+    <h3>Whiteboard</h3>
+    <button onclick="clearBoard()">Clear</button>
+
+  </div>
+
+</div>
+
+<!-- Quiz Popup -->
+<div class="popup" id="quizPopup">
+  <h4>Quick Question</h4>
+  <p>What is 2 + 2?</p>
+  <button onclick="answerQuiz(3)">3</button>
+  <button onclick="answerQuiz(4)">4</button>
+  <button onclick="closeQuiz()">Close</button>
+</div>
+
+<script>
+
+/* =====================
+   COMMENT SYSTEM
+===================== */
+
+function addComment() {
+  const input = document.getElementById("commentInput");
+  const comments = document.getElementById("comments");
+
+  if (input.value.trim() !== "") {
+    comments.innerHTML += "<p>" + input.value + "</p>";
+    input.value = "";
+    comments.scrollTop = comments.scrollHeight;
+  }
+}
+
+/* =====================
+   WHITEBOARD
+===================== */
+
+const canvas = document.getElementById("whiteboard");
+const ctx = canvas.getContext("2d");
+
+canvas.width = document.querySelector(".video-section").clientWidth;
+canvas.height = document.querySelector(".video-section").clientHeight;
+
+let drawing = false;
+
+canvas.addEventListener("mousedown", () => drawing = true);
+canvas.addEventListener("mouseup", () => {
+  drawing = false;
+  ctx.beginPath();
+});
+canvas.addEventListener("mousemove", draw);
+
+function draw(e) {
+  if (!drawing) return;
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "red";
+
+  ctx.lineTo(e.offsetX, e.offsetY);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(e.offsetX, e.offsetY);
+}
+
+function clearBoard() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+/* =====================
+   POLL
+===================== */
+
+let yesVotes = 0;
+let noVotes = 0;
+
+function vote(choice) {
+  if (choice === "Yes") yesVotes++;
+  if (choice === "No") noVotes++;
+
+  document.getElementById("pollResults").innerText =
+    "Yes: " + yesVotes + " | No: " + noVotes;
+}
+
+/* =====================
+   QUIZ POPUP
+===================== */
+
+function showQuiz() {
+  document.getElementById("quizPopup").style.display = "block";
+}
+
+function closeQuiz() {
+  document.getElementById("quizPopup").style.display = "none";
+}
+
+function answerQuiz(answer) {
+  if (answer === 4) {
+    alert("Correct!");
+  } else {
+    alert("Try again.");
+  }
+  closeQuiz();
+}
+
+</script>
+
+</body>
+</html>
